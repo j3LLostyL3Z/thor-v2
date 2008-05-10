@@ -1,0 +1,47 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: juce_application - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP8C.tmp" with contents
+[
+/nologo /G6 /MTd /W3 /Gm /GR /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Debug/thor.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\devel\thor\ThorMain.cpp"
+"C:\devel\thor\ThorMainComponent.cpp"
+"C:\devel\thor\ThorWorkerThread.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP8C.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP8D.tmp" with contents
+[
+kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/thor.pdb" /debug /machine:I386 /out:"Debug/thor.exe" /pdbtype:sept /libpath:"../../bin" 
+.\Debug\ThorAbout.obj
+.\Debug\ThorConfig.obj
+.\Debug\ThorConfigComponent.obj
+.\Debug\ThorConfigDialog.obj
+.\Debug\ThorMain.obj
+.\Debug\ThorMainComponent.obj
+.\Debug\ThorUpdateThread.obj
+.\Debug\ThorWorkerThread.obj
+.\Debug\zip.obj
+.\Debug\thor.res
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP8D.tmp"
+<h3>Output Window</h3>
+Compiling...
+ThorWorkerThread.cpp
+JUCE! Library to link to: jucelib_static_Win32_debug.lib
+Skipping... (no relevant changes detected)
+ThorMain.cpp
+ThorMainComponent.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+thor.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>
