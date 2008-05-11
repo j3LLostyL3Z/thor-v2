@@ -30,7 +30,6 @@ void ThorWorkerThread::run()
 	{
 		Logger::writeToLog (files[p]->getFullPathName());
 		File *inFile = new File (*files[p]);
-		File *
 	}
 }
 
