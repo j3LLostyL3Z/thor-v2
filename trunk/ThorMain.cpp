@@ -5,7 +5,7 @@
 class wnd  : public DocumentWindow
 {
 public:
-	ThorConfig *config;
+	ThorConfig config;
     //==============================================================================
     wnd()
         : DocumentWindow (T("Thor v2"),
@@ -13,26 +13,27 @@ public:
                           DocumentWindow::allButtons, 
                           true)
     {
-		config = new ThorConfig();
-
-        setContentComponent (new ThorMainComponent(config));
 		setTitleBarHeight (0);
         setVisible (true);
 		setAlwaysOnTop(true);
         // centre the window on the desktop with this size
-        setBounds (config->getRect());
+        setBounds (config.getRect());
+
+		if (config.getWindowAlpha())
+		{
+			setBackgroundColour (Colours::white.withAlpha ((float)config.getWindowAlpha()));
+		}
+		
+		setContentComponent (new ThorMainComponent(&config));
     }
 
     ~wnd()
     {
-		config->setRect (getBounds());
-		delete config;
+		config.setRect (getBounds());
     }
-
     //==============================================================================
     void closeButtonPressed()
     {
-		delete config;
         JUCEApplication::quit();
     }
 };
