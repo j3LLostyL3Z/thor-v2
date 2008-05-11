@@ -10,6 +10,7 @@
 
 ThorConfig::ThorConfig()
 {
+	
 	thorProperties = 0;
 	File f (PropertiesFile::getDefaultAppSettingsFile (T("thor"), T("settings"), String::empty, false));
 
@@ -28,6 +29,7 @@ ThorConfig::ThorConfig()
 	defaultWorkerPriority	= thorProperties->getIntValue (T("defaultWorkerPriority"), 5);
 	defaultVersionUrl		= thorProperties->getValue (T("defaultVersionUrl"), T("http://svn.sndlab.com/thor"));
 	defaultVersionCheck		= thorProperties->getBoolValue (T("defaultVersionCheck"), 1);
+	defaultWindowAlpha		= thorProperties->getDoubleValue (T("defaultWindowAlpha"), 1.0);
 }
 
 ThorConfig::~ThorConfig()
@@ -41,11 +43,17 @@ ThorConfig::~ThorConfig()
 	thorProperties->setValue (T("defaultWorkerPriority"), defaultWorkerPriority);
 	thorProperties->setValue (T("defaultVersionUrl"), defaultVersionUrl);
 	thorProperties->setValue (T("defaultVersionCheck"), defaultVersionCheck);
+	thorProperties->setValue (T("defaultWindowAlpha"), defaultWindowAlpha);
 
 	thorProperties->save();
 
 	if (thorProperties)
 		deleteAndZero (thorProperties);
+}
+
+double ThorConfig::getWindowAlpha ()
+{
+	return (defaultWindowAlpha);
 }
 
 String ThorConfig::getTempDir ()

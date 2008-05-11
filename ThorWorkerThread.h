@@ -29,15 +29,14 @@ class ThorWorkerThread : public Thread  , public ChangeBroadcaster
 		void addFile (const File f);
 		void clearFileList();
 		bool convertAudioFile (InputStream *in, File *out);
-		bool convertAudioFile (File *in, File *out);
+		bool convertAudioFile (File *in);
 		bool wav2flac (InputStream *in, OutputStream *out);
 		bool wav2ogg (InputStream *in, OutputStream *out);
 		bool ogg2wav (InputStream *in, OutputStream *out);
 		bool flac2wav (InputStream *in, OutputStream *out);
-		bool any2wav (InputStream *in, OutputStream *out);
-
-		int getFormat (AudioFormatReader *inFormat);
-
+		bool wav2any (InputStream *in, OutputStream *out);
+		void warn (String msg);
+		void warnInWindow (String msg);
 	private:
 		File *inputFile;
 		File *outputDir;
