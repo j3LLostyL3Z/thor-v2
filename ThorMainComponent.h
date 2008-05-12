@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  5 May 2008 7:42:23 pm
+  Creation date:  12 May 2008 2:04:09 pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -19,8 +19,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_HEADER_THORMAINCOMPONENT_THORMAINCOMPONENT_85B05587__
-#define __JUCER_HEADER_THORMAINCOMPONENT_THORMAINCOMPONENT_85B05587__
+#ifndef __JUCER_HEADER_THORMAINCOMPONENT_THORMAINCOMPONENT_D485A84D__
+#define __JUCER_HEADER_THORMAINCOMPONENT_THORMAINCOMPONENT_D485A84D__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "juce.h"
@@ -110,8 +110,9 @@ private:
     //==============================================================================
     Label* thorDebug;
     ImageButton* thorStop;
+    Label* thorDetails;
     Image* internalCachedImage1;
-
+	
     //==============================================================================
     // (prevent copy constructor and operator= being generated..)
     ThorMainComponent (const ThorMainComponent&);
@@ -119,4 +120,4 @@ private:
 };
 
 
-#endif   // __JUCER_HEADER_THORMAINCOMPONENT_THORMAINCOMPONENT_85B05587__
+#endif   // __JUCER_HEADER_THORMAINCOMPONENT_THORMAINCOMPONENT_D485A84D__

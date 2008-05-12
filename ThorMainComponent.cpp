@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  5 May 2008 7:42:23 pm
+  Creation date:  12 May 2008 2:04:09 pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -32,10 +32,11 @@
 ThorMainComponent::ThorMainComponent (ThorConfig *_config)
     : thorDebug (0),
       thorStop (0),
+      thorDetails (0),
       internalCachedImage1 (0)
 {
     addAndMakeVisible (thorDebug = new Label (T("Debug"),
-                                              T("miauu...")));
+                                              T("...some info...")));
     thorDebug->setFont (Font (9.0000f, Font::plain));
     thorDebug->setJustificationType (Justification::centredLeft);
     thorDebug->setEditable (false, false, false);
@@ -51,6 +52,14 @@ ThorMainComponent::ThorMainComponent (ThorConfig *_config)
                          ImageCache::getFromMemory (processstop_png, processstop_pngSize), 1.0000f, Colour (0xafaaaaaa),
                          ImageCache::getFromMemory (processstop_png, processstop_pngSize), 1.0000f, Colour (0x0),
                          0, 1.0000f, Colour (0x0));
+    addAndMakeVisible (thorDetails = new Label (T("Debug"),
+                                                T("...more info...")));
+    thorDetails->setFont (Font (9.0000f, Font::plain));
+    thorDetails->setJustificationType (Justification::centredLeft);
+    thorDetails->setEditable (false, false, false);
+    thorDetails->setColour (TextEditor::textColourId, Colours::black);
+    thorDetails->setColour (TextEditor::backgroundColourId, Colour (0x0));
+
     internalCachedImage1 = ImageCache::getFromMemory (bg_png, bg_pngSize);
 
     //[UserPreSize]
@@ -59,7 +68,7 @@ ThorMainComponent::ThorMainComponent (ThorConfig *_config)
 	addAndMakeVisible (thorProgressBar);
     //[/UserPreSize]
 
-    setSize (130, 156);
+    setSize (130, 172);
 
     //[Constructor] You can add your own custom stuff here..
 	optionsImage	= ImageCache::getFromMemory (options_png, bg_pngSize);
@@ -79,6 +88,7 @@ ThorMainComponent::ThorMainComponent (ThorConfig *_config)
 		updateThread = new ThorUpdateThread (config);
 		updateThread->startThread();
 	}
+	
     //[/Constructor]
 }
 
@@ -89,6 +99,7 @@ ThorMainComponent::~ThorMainComponent()
 
     deleteAndZero (thorDebug);
     deleteAndZero (thorStop);
+    deleteAndZero (thorDetails);
     ImageCache::release (internalCachedImage1);
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -123,8 +134,9 @@ void ThorMainComponent::paint (Graphics& g)
 
 void ThorMainComponent::resized()
 {
-    thorDebug->setBounds (0, 142, 128, 16);
+    thorDebug->setBounds (0, 143, 128, 16);
     thorStop->setBounds (112, 112, 16, 16);
+    thorDetails->setBounds (0, 157, 128, 16);
     //[UserResized] Add your own custom resize handling here..
 	thorProgressBar->setBounds (0,128,128,16);
     //[/UserResized]
@@ -259,7 +271,7 @@ void ThorMainComponent::filesDropped (const StringArray &files, int x, int y)
 			worker->clearFileList();
 			continue;
 		}
-		
+
 		thorStop->setVisible (true);
 		worker->startThread();
 	}
@@ -304,10 +316,14 @@ void ThorMainComponent::changeListenerCallback(void *ptr)
 		}
 		else if (progressVar == 0)
 		{
-			thorDebug->setText (T("d0ne..."), false);
+			thorDebug->setText (T("...some info..."), false);
+			thorDetails->setText (T("...more info..."), false);
 		}
 		else
 		{
+			String k = String::formatted (T("%d/"), worker->getSamplesRead()) + String::formatted (T("%d"), worker->getSamplesToRead());
+		
+			thorDetails->setText (k, false);
 			thorDebug->setText (worker->getStatusString(), false);
 		}
 	}
@@ -327,21 +343,26 @@ BEGIN_JUCER_METADATA
                  parentClasses="public Component, public FileDragAndDropTarget, public ChangeListener"
                  constructorParams="ThorConfig *_config" variableInitialisers=""
                  snapPixels="8" snapActive="1" snapShown="1" overlayOpacity="0.330000013"
-                 fixedSize="1" initialWidth="130" initialHeight="156">
+                 fixedSize="1" initialWidth="130" initialHeight="172">
   <BACKGROUND backgroundColour="9e9e9e">
     <IMAGE pos="0 0 128 128" resource="bg_png" opacity="1" mode="0"/>
   </BACKGROUND>
   <LABEL name="Debug" id="42e4df339e8e6831" memberName="thorDebug" virtualName=""
-         explicitFocusOrder="0" pos="0 142 128 16" edTextCol="ff000000"
-         edBkgCol="0" labelText="miauu..." editableSingleClick="0" editableDoubleClick="0"
-         focusDiscardsChanges="0" fontname="Default font" fontsize="9"
-         bold="0" italic="0" justification="33"/>
+         explicitFocusOrder="0" pos="0 143 128 16" edTextCol="ff000000"
+         edBkgCol="0" labelText="...some info..." editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="9" bold="0" italic="0" justification="33"/>
   <IMAGEBUTTON name="new button" id="7cc4f43d5083d63d" memberName="thorStop"
                virtualName="" explicitFocusOrder="0" pos="112 112 16 16" tooltip="Stop !"
                buttonText="Stop" connectedEdges="0" needsCallback="1" radioGroupId="0"
                keepProportions="1" resourceNormal="processstop_png" opacityNormal="1"
                colourNormal="afaaaaaa" resourceOver="processstop_png" opacityOver="1"
                colourOver="0" resourceDown="" opacityDown="1" colourDown="0"/>
+  <LABEL name="Debug" id="b3645c01928c9a9c" memberName="thorDetails" virtualName=""
+         explicitFocusOrder="0" pos="0 157 128 16" edTextCol="ff000000"
+         edBkgCol="0" labelText="...more info..." editableSingleClick="0"
+         editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
+         fontsize="9" bold="0" italic="0" justification="33"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA
