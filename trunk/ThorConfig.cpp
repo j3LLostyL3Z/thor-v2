@@ -25,10 +25,10 @@ ThorConfig::ThorConfig()
 	defaultOggQuality		= thorProperties->getIntValue (T("defaultOggQuality"), 1);
 	defaultBufferSize		= thorProperties->getIntValue (T("defaultBufferSize"), 4096);
 	defaultTempDir			= thorProperties->getValue (T("defaultTempDir"), T("/thorOut"));
-	defaultRectangle		= thorProperties->getValue (T("defaultRectangle"), T("10 10 130 156"));
+	defaultRectangle		= thorProperties->getValue (T("defaultRectangle"), T("10 10 130 172"));
 	defaultWorkerPriority	= thorProperties->getIntValue (T("defaultWorkerPriority"), 5);
 	defaultVersionUrl		= thorProperties->getValue (T("defaultVersionUrl"), T("http://svn.sndlab.com/thor"));
-	defaultVersionCheck		= thorProperties->getBoolValue (T("defaultVersionCheck"), 1);
+	defaultVersionCheck		= thorProperties->getBoolValue (T("defaultVersionCheck"), 0);
 	defaultWindowAlpha		= thorProperties->getDoubleValue (T("defaultWindowAlpha"), 1.0);
 }
 

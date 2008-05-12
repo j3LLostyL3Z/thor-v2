@@ -55,11 +55,23 @@ void ThorWorkerThread::run()
 		if (inFile->hasFileExtension (T("zip")))
 		{
 			ret = zip2any (inFile);
+
+			if (threadShouldExit())
+			{
+				deleteAndZero (inFile);
+				return;
+			}
 			Logger::writeToLog (T("zip: ") +  inFile->getFullPathName());
 		}
 		else
 		{
 			ret = convertAudioFile (inFile);
+
+			if (threadShouldExit())
+			{
+				deleteAndZero (inFile);
+				return;
+			}
 			Logger::writeToLog (T("audio: ") + inFile->getFullPathName());
 		}
 
@@ -111,6 +123,12 @@ bool ThorWorkerThread::zip2any (File *in)
 
 		for (int k=0; k<zIn->getNumEntries(); k++)
 		{
+			if (threadShouldExit())
+			{
+				deleteAndZero (zIn);
+				return (false);
+			}
+
 			const ZipFile::ZipEntry *zInEntry = zIn->getEntry(k);
 			
 			Logger::writeToLog (T("entry: ") + zInEntry->filename);
@@ -162,7 +180,7 @@ bool ThorWorkerThread::zip2any (File *in)
 						if (inStream)
 							deleteAndZero (inStream);
 					}
-					if (fName.toLowerCase().endsWith (T("flac")))
+					else if (fName.toLowerCase().endsWith (T("flac")))
 					{
 						File *outDir = new File (in->withFileExtension(String::empty));
 						File *outFile = new File (outDir->getFullPathName() + T("/") + fName.upToFirstOccurrenceOf (T(".flac"), false, true) + T(".wav"));
@@ -195,7 +213,7 @@ bool ThorWorkerThread::zip2any (File *in)
 
 						continue;
 					}
-					if (fName.toLowerCase().endsWith (T("ogg")))
+					else if (fName.toLowerCase().endsWith (T("ogg")))
 					{
 						Logger::writeToLog (T("ogg()"));
 						File *outDir = new File (in->withFileExtension(String::empty));
@@ -229,7 +247,47 @@ bool ThorWorkerThread::zip2any (File *in)
 						if (inStream)
 							deleteAndZero (inStream);
 					}
+					else
+					{
+						/* non-audio file, just move it from zip to directory */
+						Logger::writeToLog (T("non-audio()"));
+						File *outDir = new File (in->withFileExtension(String::empty));
+						File *outFile = new File (outDir->getFullPathName() + T("/") + fName);
+						
+						if (!outDir->exists())
+						{
+							outDir->createDirectory();
+						}
 
+						if (outFile->exists())
+						{
+							int k = AlertWindow::showYesNoCancelBox (AlertWindow::WarningIcon, T("Warning!"), T("Target file exists, overwrite?"), T("Yes"), T("No"), T("Cancel"));
+		
+							if (k == 0 || k == 2)
+							{
+								if (outFile)
+									deleteAndZero (outFile);
+								if (inStream)
+									deleteAndZero (inStream);
+
+								return (false);
+							}
+						}
+
+						OutputStream *outStream = outFile->createOutputStream();
+
+						if (outStream)
+						{
+							outStream->writeFromInputStream (*inStream, -1);
+						}
+
+						if (outStream)
+							deleteAndZero (outStream);
+						if (outFile)
+							deleteAndZero (outFile);
+						if (inStream)
+							deleteAndZero (inStream);
+					}
 					if (inStream)
 						deleteAndZero (inStream);
 					if (outFile)
@@ -297,6 +355,7 @@ bool ThorWorkerThread::convertAudioFile (File *in)
 		bool ret;
 		InputStream *inStream = in->createInputStream();
 		processingFileName = in->getFullPathName();
+
 		if (inStream)
 		{
 			if (in->hasFileExtension (T("wav")))
@@ -442,6 +501,9 @@ bool ThorWorkerThread::ogg2wav (InputStream *in, OutputStream *out)
 
 	for (int64 k=0; k<oggFormatReader->lengthInSamples; k=k+config->getBuffSize())
 	{
+		samplesRead	= k;
+		samplesToRead = oggFormatReader->lengthInSamples;
+
 		if (threadShouldExit())
 		{			
 			procProgress = 0;
@@ -513,6 +575,9 @@ bool ThorWorkerThread::flac2wav (InputStream *in, OutputStream *out)
 
 	for (int64 k=0; k<flacFormatReader->lengthInSamples; k=k+config->getBuffSize())
 	{
+		samplesRead	= k;
+		samplesToRead = flacFormatReader->lengthInSamples;
+
 		if (threadShouldExit())
 		{			
 			procProgress = 0;
@@ -589,7 +654,9 @@ bool ThorWorkerThread::wav2flac (InputStream *in, OutputStream *out)
 
 	for (int64 k=0; k<wavFormatReader->lengthInSamples; k=k+config->getBuffSize())
 	{
-		Logger::writeToLog (String::formatted (T("write portion: %d"), k));
+		samplesRead	= k;
+		samplesToRead = wavFormatReader->lengthInSamples;
+		
 		if (threadShouldExit())
 		{			
 			procProgress = 0;
@@ -609,8 +676,6 @@ bool ThorWorkerThread::wav2flac (InputStream *in, OutputStream *out)
 			procProgress = 1.0f;
 			sendChangeMessage (this);
 
-			Logger::writeToLog (String::formatted (T("progress: %.4f"), procProgress));
-
 			return (true);
 		}
 		else
@@ -624,8 +689,6 @@ bool ThorWorkerThread::wav2flac (InputStream *in, OutputStream *out)
 
 			procProgress = (float)k/wavFormatReader->lengthInSamples;
 			sendChangeMessage (this);
-
-			Logger::writeToLog (String::formatted (T("progress: %.4f"), procProgress));
 		}
 
 		/* we need to exit ? */
@@ -676,6 +739,9 @@ bool ThorWorkerThread::wav2ogg (InputStream *in, OutputStream *out)
 
 	for (int64 k=0; k<wavFormatReader->lengthInSamples; k=k+config->getBuffSize())
 	{
+		samplesRead	= k;
+		samplesToRead = wavFormatReader->lengthInSamples;
+
 		if (threadShouldExit())
 		{			
 			procProgress = 0;
@@ -738,4 +804,14 @@ bool ThorWorkerThread::wav2any (InputStream *in, OutputStream *out)
 String ThorWorkerThread::getStatusString()
 {
 	return (processingArchive + T("::") + processingFileName);
+}
+
+int64 ThorWorkerThread::getSamplesRead()
+{
+	return (samplesRead);
+}
+
+int64 ThorWorkerThread::getSamplesToRead()
+{
+	return (samplesToRead);
 }
