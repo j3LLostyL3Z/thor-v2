@@ -29,6 +29,9 @@ class ThorConfig
 		void setVersionCheck(bool v);
 		String getVersionUrl();
 		double getWindowAlpha();
+		void setDefaultOutputAction (int t);
+		int getDefaultOutputAction ();
+
 	private:
 		String defaultEncodeFormat;
 		int defaultOggQuality;
@@ -40,6 +43,7 @@ class ThorConfig
 		String defaultVersionUrl;
 		bool defaultVersionCheck;
 		double defaultWindowAlpha;
+		int defaultOutputAction;
 };
 
 #endif // !defined(AFX_THORCONFIG_H__2891A1E0_0890_45CE_9460_AE2A8D3DFDFC__INCLUDED_)

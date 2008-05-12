@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  5 May 2008 9:33:25 pm
+  Creation date:  12 May 2008 3:16:52 pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -35,6 +35,8 @@ ThorConfigComponent::ThorConfigComponent (ThorConfig *_config)
       label2 (0),
       thorOggQuality (0),
       thorVersionCheck (0),
+      label3 (0),
+      thorOutputAction (0),
       internalCachedImage1 (0)
 {
     addAndMakeVisible (label = new Label (T("new label"),
@@ -77,6 +79,24 @@ ThorConfigComponent::ThorConfigComponent (ThorConfig *_config)
     thorVersionCheck->addButtonListener (this);
     thorVersionCheck->setToggleState (true, false);
 
+    addAndMakeVisible (label3 = new Label (T("new label"),
+                                           T("Output:")));
+    label3->setFont (Font (12.0000f, Font::plain));
+    label3->setJustificationType (Justification::centredLeft);
+    label3->setEditable (false, false, false);
+    label3->setColour (TextEditor::textColourId, Colours::black);
+    label3->setColour (TextEditor::backgroundColourId, Colour (0x0));
+
+    addAndMakeVisible (thorOutputAction = new ComboBox (T("Ogg Quality")));
+    thorOutputAction->setEditableText (false);
+    thorOutputAction->setJustificationType (Justification::centredLeft);
+    thorOutputAction->setTextWhenNothingSelected (String::empty);
+    thorOutputAction->setTextWhenNoChoicesAvailable (T("(no choices)"));
+    thorOutputAction->addItem (T("Kepp and create ZIP"), 1);
+    thorOutputAction->addItem (T("Keep output DIR (no ZIP)"), 2);
+    thorOutputAction->addItem (T("Keep both"), 3);
+    thorOutputAction->addListener (this);
+
     internalCachedImage1 = ImageCache::getFromMemory (vorbis_png, vorbis_pngSize);
 
     //[UserPreSize]
@@ -88,6 +108,7 @@ ThorConfigComponent::ThorConfigComponent (ThorConfig *_config)
     //[Constructor] You can add your own custom stuff here..
 	thorOggQuality->setSelectedItemIndex (config->getOggQuality(), false);
 	thorVersionCheck->setToggleState (config->getVersionCheck(), false);
+	thorOutputAction->setSelectedItemIndex (config->getDefaultOutputAction(), false);
 
 	if (config->getFileExtension() == T("flac"))
 	{
@@ -111,6 +132,8 @@ ThorConfigComponent::~ThorConfigComponent()
     deleteAndZero (label2);
     deleteAndZero (thorOggQuality);
     deleteAndZero (thorVersionCheck);
+    deleteAndZero (label3);
+    deleteAndZero (thorOutputAction);
     ImageCache::release (internalCachedImage1);
 
     //[Destructor]. You can add your own custom destruction code here..
@@ -138,10 +161,12 @@ void ThorConfigComponent::paint (Graphics& g)
 void ThorConfigComponent::resized()
 {
     label->setBounds (24, 24, 63, 16);
-    thorConfigEncodeFormat->setBounds (128, 40, 88, 16);
-    label2->setBounds (136, 24, 63, 16);
+    thorConfigEncodeFormat->setBounds (128, 27, 112, 16);
+    label2->setBounds (136, 11, 63, 16);
     thorOggQuality->setBounds (16, 40, 88, 16);
-    thorVersionCheck->setBounds (176, 80, 64, 16);
+    thorVersionCheck->setBounds (176, 82, 64, 16);
+    label3->setBounds (136, 48, 63, 16);
+    thorOutputAction->setBounds (128, 64, 112, 16);
     //[UserResized] Add your own custom resize handling here..
     //[/UserResized]
 }
@@ -162,6 +187,12 @@ void ThorConfigComponent::comboBoxChanged (ComboBox* comboBoxThatHasChanged)
         //[UserComboBoxCode_thorOggQuality] -- add your combo box handling code here..
 		config->setOggQuality (thorOggQuality->getSelectedItemIndex());
         //[/UserComboBoxCode_thorOggQuality]
+    }
+    else if (comboBoxThatHasChanged == thorOutputAction)
+    {
+        //[UserComboBoxCode_thorOutputAction] -- add your combo box handling code here..
+		config->setDefaultOutputAction (thorOutputAction->getSelectedItemIndex());
+        //[/UserComboBoxCode_thorOutputAction]
     }
 
     //[UsercomboBoxChanged_Post]
@@ -214,10 +245,10 @@ BEGIN_JUCER_METADATA
          editableDoubleClick="0" focusDiscardsChanges="0" fontname="Default font"
          fontsize="12" bold="0" italic="0" justification="33"/>
   <COMBOBOX name="new combo box" id="9801cce4d3b9bab5" memberName="thorConfigEncodeFormat"
-            virtualName="" explicitFocusOrder="0" pos="128 40 88 16" editable="0"
+            virtualName="" explicitFocusOrder="0" pos="128 27 112 16" editable="0"
             layout="33" items="Ogg&#10;Flac" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <LABEL name="new label" id="f96cbe09a7ab8edf" memberName="label2" virtualName=""
-         explicitFocusOrder="0" pos="136 24 63 16" edTextCol="ff000000"
+         explicitFocusOrder="0" pos="136 11 63 16" edTextCol="ff000000"
          edBkgCol="0" labelText="Encode To:" editableSingleClick="0" editableDoubleClick="0"
          focusDiscardsChanges="0" fontname="Default font" fontsize="12"
          bold="0" italic="0" justification="33"/>
@@ -225,8 +256,17 @@ BEGIN_JUCER_METADATA
             virtualName="" explicitFocusOrder="0" pos="16 40 88 16" editable="0"
             layout="33" items="Low&#10;Medium&#10;High" textWhenNonSelected="" textWhenNoItems="(no choices)"/>
   <TOGGLEBUTTON name="new toggle button" id="edb3686e8aab12d" memberName="thorVersionCheck"
-                virtualName="" explicitFocusOrder="0" pos="176 80 64 16" buttonText="version check"
+                virtualName="" explicitFocusOrder="0" pos="176 82 64 16" buttonText="version check"
                 connectedEdges="0" needsCallback="1" radioGroupId="0" state="1"/>
+  <LABEL name="new label" id="83f67d8edfb4e0" memberName="label3" virtualName=""
+         explicitFocusOrder="0" pos="136 48 63 16" edTextCol="ff000000"
+         edBkgCol="0" labelText="Output:" editableSingleClick="0" editableDoubleClick="0"
+         focusDiscardsChanges="0" fontname="Default font" fontsize="12"
+         bold="0" italic="0" justification="33"/>
+  <COMBOBOX name="Ogg Quality" id="31caefcfceb806" memberName="thorOutputAction"
+            virtualName="" explicitFocusOrder="0" pos="128 64 112 16" editable="0"
+            layout="33" items="Kepp and create ZIP&#10;Keep output DIR (no ZIP)&#10;Keep both"
+            textWhenNonSelected="" textWhenNoItems="(no choices)"/>
 </JUCER_COMPONENT>
 
 END_JUCER_METADATA

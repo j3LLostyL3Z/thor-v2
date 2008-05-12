@@ -312,6 +312,8 @@ void ThorMainComponent::changeListenerCallback(void *ptr)
 		progressVar = worker->getProcProgress();
 		if (progressVar == 1)
 		{
+			thorDebug->setText (T("...some info..."), false);
+			thorDetails->setText (T("...more info..."), false);
 			thorStop->setVisible (false);
 		}
 		else if (progressVar == 0)
