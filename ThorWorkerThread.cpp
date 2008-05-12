@@ -10,6 +10,9 @@
 
 ThorWorkerThread::ThorWorkerThread(ThorConfig *_config) : Thread (T("worker"))
 {
+	processingFileName = String::empty;
+	processingArchive = String::empty;
+
 	formatManager = new AudioFormatManager ();
 	formatManager->registerBasicFormats ();
 	config = _config;
@@ -40,7 +43,7 @@ void ThorWorkerThread::run()
 		Logger::writeToLog (files[p]->getFullPathName());
 
 		File *inFile = new File (*files[p]);
-
+		bool ret;
 		if (!inFile->exists())
 		{
 			warn (T("Can't open input file: ") + inFile->getFullPathName());
@@ -49,16 +52,17 @@ void ThorWorkerThread::run()
 			return;
 		}
 
-		if (!convertAudioFile (inFile))
+		if (inFile->hasFileExtension (T("zip")))
 		{
-			Logger::writeToLog (T("failed to convert: ") +  inFile->getFullPathName());
-			warnInWindow (T("failed to convert: ") + inFile->getFullPathName());
+			ret = zip2any (inFile);
+			Logger::writeToLog (T("zip: ") +  inFile->getFullPathName());
 		}
 		else
 		{
-			Logger::writeToLog (T("successfully converted: ") +  inFile->getFullPathName());
-			warnInWindow(T("success: ") + inFile->getFullPathName());
+			ret = convertAudioFile (inFile);
+			Logger::writeToLog (T("audio: ") + inFile->getFullPathName());
 		}
+
 		/* do the conversion */
 
 		deleteAndZero (inFile);
@@ -94,6 +98,195 @@ void ThorWorkerThread::clearFileList()
 	}
 }
 
+bool ThorWorkerThread::zip2any (File *in)
+{
+	Logger::writeToLog (T("zip2any()"));
+
+	ZipFile *zIn = new ZipFile (*in);
+	bool ret;
+
+	if (zIn)
+	{
+		processingArchive = in->getFullPathName();
+
+		for (int k=0; k<zIn->getNumEntries(); k++)
+		{
+			const ZipFile::ZipEntry *zInEntry = zIn->getEntry(k);
+			
+			Logger::writeToLog (T("entry: ") + zInEntry->filename);
+
+			if (zInEntry)
+			{
+				Logger::writeToLog (T("entry is valid"));
+
+				InputStream *inStream = zIn->createStreamForEntry(k);
+				String fName = zInEntry->filename;
+				processingFileName = fName;
+
+				File *outFile = 0;
+
+				if (inStream)
+				{
+					Logger::writeToLog (T("in stream is valid"));
+
+					if (fName.toLowerCase().endsWith (T("wav")))
+					{
+						File *outDir = new File (in->withFileExtension(String::empty));
+						File *outFile = new File (outDir->getFullPathName() + T("/") + fName.upToFirstOccurrenceOf (T(".wav"), false, true) + T(".") + config->getFileExtension());
+						
+						if (!outDir->exists())
+						{
+							outDir->createDirectory();
+						}
+
+						if (outFile->exists())
+						{
+							int k = AlertWindow::showYesNoCancelBox (AlertWindow::WarningIcon, T("Warning!"), T("Target file exists, overwrite?"), T("Yes"), T("No"), T("Cancel"));
+		
+							if (k == 0 || k == 2)
+							{
+								if (outFile)
+									deleteAndZero (outFile);
+								if (inStream)
+									deleteAndZero (inStream);
+
+								return (false);
+							}
+						}
+
+						Logger::writeToLog (T("convert: ") + fName);
+						ret = convertAudioFile (inStream, outFile, FORMAT_WAV);
+
+						if (outFile)
+							deleteAndZero (outFile);
+						if (inStream)
+							deleteAndZero (inStream);
+					}
+					if (fName.toLowerCase().endsWith (T("flac")))
+					{
+						File *outDir = new File (in->withFileExtension(String::empty));
+						File *outFile = new File (outDir->getFullPathName() + T("/") + fName.upToFirstOccurrenceOf (T(".flac"), false, true) + T(".wav"));
+						
+						if (!outDir->exists())
+						{
+							outDir->createDirectory();
+						}
+
+						if (outFile->exists())
+						{
+							int k = AlertWindow::showYesNoCancelBox (AlertWindow::WarningIcon, T("Warning!"), T("Target file exists, overwrite?"), T("Yes"), T("No"), T("Cancel"));
+		
+							if (k == 0 || k == 2)
+							{
+								if (outFile)
+									deleteAndZero (outFile);
+								if (inStream)
+									deleteAndZero (inStream);
+
+								return (false);
+							}
+						}
+
+						Logger::writeToLog (T("convert: ") + fName);
+						ret = convertAudioFile (inStream, outFile, FORMAT_WAV);
+
+						if (outFile)
+							deleteAndZero (outFile);
+
+						continue;
+					}
+					if (fName.toLowerCase().endsWith (T("ogg")))
+					{
+						Logger::writeToLog (T("ogg()"));
+						File *outDir = new File (in->withFileExtension(String::empty));
+						File *outFile = new File (outDir->getFullPathName() + T("/") + fName.upToFirstOccurrenceOf (T(".ogg"), false, true) + T(".wav"));
+						
+						if (!outDir->exists())
+						{
+							outDir->createDirectory();
+						}
+
+						if (outFile->exists())
+						{
+							int k = AlertWindow::showYesNoCancelBox (AlertWindow::WarningIcon, T("Warning!"), T("Target file exists, overwrite?"), T("Yes"), T("No"), T("Cancel"));
+		
+							if (k == 0 || k == 2)
+							{
+								if (outFile)
+									deleteAndZero (outFile);
+								if (inStream)
+									deleteAndZero (inStream);
+
+								return (false);
+							}
+						}
+
+						Logger::writeToLog (T("convert: ") + fName);
+						ret = convertAudioFile (inStream, outFile, FORMAT_OGG);
+
+						if (outFile)
+							deleteAndZero (outFile);
+						if (inStream)
+							deleteAndZero (inStream);
+					}
+
+					if (inStream)
+						deleteAndZero (inStream);
+					if (outFile)
+						deleteAndZero (outFile);
+
+					Logger::writeToLog (T("end one loop run"));
+				}
+			}
+		}
+
+		deleteAndZero (zIn);
+		processingArchive = String::empty;
+		processingFileName = String::empty;
+		return (true);
+	}
+	else
+	{
+		return (false);
+	}
+}
+
+bool ThorWorkerThread::convertAudioFile (InputStream *in, File *out, int t)
+{
+	Logger::writeToLog (T("convert audio from stream base"));
+	OutputStream *outStream = 0;
+	bool ret;
+
+	outStream = out->createOutputStream();
+
+	if (!outStream)
+	{
+		return (false);
+	}
+
+	switch (t)
+	{
+		case FORMAT_WAV:
+			ret = wav2any (in, outStream);
+			break;
+		case FORMAT_FLAC:
+			ret = flac2wav (in, outStream);
+			break;
+		case FORMAT_OGG:
+			ret = ogg2wav (in, outStream);
+			break;
+		case FORMAT_UNKNOWN:
+			break;
+		default:
+			break;
+	}
+
+	if (outStream)
+		deleteAndZero (outStream);
+
+	return (ret);
+}
+
 bool ThorWorkerThread::convertAudioFile (File *in)
 {
 	Logger::writeToLog (T("converting"));
@@ -103,7 +296,7 @@ bool ThorWorkerThread::convertAudioFile (File *in)
 	{
 		bool ret;
 		InputStream *inStream = in->createInputStream();
-
+		processingFileName = in->getFullPathName();
 		if (inStream)
 		{
 			if (in->hasFileExtension (T("wav")))
@@ -290,16 +483,76 @@ bool ThorWorkerThread::ogg2wav (InputStream *in, OutputStream *out)
 		}
 	}
 
-	return (true);
+	return (false);
 }
 
 bool ThorWorkerThread::flac2wav (InputStream *in, OutputStream *out)
 {
 	FlacAudioFormat *flacReader = new FlacAudioFormat();
 	AudioFormatReader *flacFormatReader = flacReader->createReaderFor (in, false);
+	
+	if (!flacFormatReader)
+	{
+		return (false);
+	}
 
 	WavAudioFormat *wavF = new WavAudioFormat();
 	AudioFormatWriter *wavFormatWriter = wavF->createWriterFor (out, flacFormatReader->sampleRate, flacFormatReader->numChannels, flacFormatReader->bitsPerSample, 0, (int)1);
+
+	if (!wavFormatWriter)
+	{
+		return (false);
+	}
+
+	AudioSampleBuffer *ioBuff = new AudioSampleBuffer (flacFormatReader->numChannels, (int)flacFormatReader->lengthInSamples);
+
+	if (!ioBuff)
+	{
+		return (false);
+	}
+
+	for (int64 k=0; k<flacFormatReader->lengthInSamples; k=k+config->getBuffSize())
+	{
+		if (threadShouldExit())
+		{			
+			procProgress = 0;
+			sendChangeMessage (this);
+			return (true);
+		}
+
+		if ((flacFormatReader->lengthInSamples - k) < config->getBuffSize())
+		{
+			ioBuff->readFromAudioReader (flacFormatReader, (int)k, (int)(flacFormatReader->lengthInSamples - k), (int)k, true, true);
+			if (wavFormatWriter)
+			{
+				ioBuff->writeToAudioWriter (wavFormatWriter, (int)k, (int)flacFormatReader->lengthInSamples - (int)k);
+			}
+
+			procProgress = 1.0f;
+			sendChangeMessage (this);
+
+			return (true);
+		}
+		else
+		{
+			ioBuff->readFromAudioReader (flacFormatReader, (int)k, config->getBuffSize(), (int)k, true, true);
+			if (wavFormatWriter)
+			{
+				ioBuff->writeToAudioWriter (wavFormatWriter, (int)k, config->getBuffSize());
+			}
+
+			procProgress = (float)k/flacFormatReader->lengthInSamples;
+			sendChangeMessage (this);
+		}
+
+		/* we need to exit ? */
+		if (threadShouldExit())
+		{
+			procProgress = 0;
+			sendChangeMessage (this);
+			return (true);
+		}
+	}
 
 	return (false);
 }
@@ -480,4 +733,9 @@ bool ThorWorkerThread::wav2any (InputStream *in, OutputStream *out)
 	}
 
 	return (false);
+}
+
+String ThorWorkerThread::getStatusString()
+{
+	return (processingArchive + T("::") + processingFileName);
 }

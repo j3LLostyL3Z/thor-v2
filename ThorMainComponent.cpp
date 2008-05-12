@@ -302,9 +302,13 @@ void ThorMainComponent::changeListenerCallback(void *ptr)
 		{
 			thorStop->setVisible (false);
 		}
-		if (progressVar == 0)
+		else if (progressVar == 0)
 		{
 			thorDebug->setText (T("d0ne..."), false);
+		}
+		else
+		{
+			thorDebug->setText (worker->getStatusString(), false);
 		}
 	}
 }

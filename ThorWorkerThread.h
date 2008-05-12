@@ -35,15 +35,19 @@ class ThorWorkerThread : public Thread  , public ChangeBroadcaster
 		bool ogg2wav (InputStream *in, OutputStream *out);
 		bool flac2wav (InputStream *in, OutputStream *out);
 		bool wav2any (InputStream *in, OutputStream *out);
+		bool zip2any (File *in);
 		void warn (String msg);
 		void warnInWindow (String msg);
+		bool convertAudioFile (InputStream *in, File *out, int t);
+		String getStatusString();
 	private:
 		File *inputFile;
 		File *outputDir;
 		AudioFormatManager *formatManager;
 		float procProgress;
 		ThorConfig *config;
-
+		String processingFileName;
+		String processingArchive;
 		OwnedArray <File> files;
 };
 
