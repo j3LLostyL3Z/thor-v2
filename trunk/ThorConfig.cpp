@@ -30,6 +30,7 @@ ThorConfig::ThorConfig()
 	defaultVersionUrl		= thorProperties->getValue (T("defaultVersionUrl"), T("http://svn.sndlab.com/thor"));
 	defaultVersionCheck		= thorProperties->getBoolValue (T("defaultVersionCheck"), 0);
 	defaultWindowAlpha		= thorProperties->getDoubleValue (T("defaultWindowAlpha"), 1.0);
+	defaultOutputAction		= thorProperties->getIntValue (T("defaultOutputAction"), 2);
 }
 
 ThorConfig::~ThorConfig()
@@ -44,6 +45,7 @@ ThorConfig::~ThorConfig()
 	thorProperties->setValue (T("defaultVersionUrl"), defaultVersionUrl);
 	thorProperties->setValue (T("defaultVersionCheck"), defaultVersionCheck);
 	thorProperties->setValue (T("defaultWindowAlpha"), defaultWindowAlpha);
+	thorProperties->setValue (T("defaultOutputAction"), defaultOutputAction);
 
 	thorProperties->save();
 
@@ -114,4 +116,14 @@ void ThorConfig::setVersionCheck(bool v)
 String ThorConfig::getVersionUrl()
 {
 	return (defaultVersionUrl);
+}
+
+int ThorConfig::getDefaultOutputAction()
+{
+	return (defaultOutputAction);
+}
+
+void ThorConfig::setDefaultOutputAction (int t)
+{
+	defaultOutputAction = t;
 }

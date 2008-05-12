@@ -116,6 +116,7 @@ bool ThorWorkerThread::zip2any (File *in)
 
 	ZipFile *zIn = new ZipFile (*in);
 	bool ret;
+	zHandle = 0;
 
 	if (zIn)
 	{
@@ -167,13 +168,16 @@ bool ThorWorkerThread::zip2any (File *in)
 									deleteAndZero (outFile);
 								if (inStream)
 									deleteAndZero (inStream);
-
+								if (zHandle)
+									CloseZip (zHandle);
 								return (false);
 							}
 						}
 
 						Logger::writeToLog (T("convert: ") + fName);
 						ret = convertAudioFile (inStream, outFile, FORMAT_WAV);
+
+						zipOutput (in, outFile);
 
 						if (outFile)
 							deleteAndZero (outFile);
@@ -200,13 +204,16 @@ bool ThorWorkerThread::zip2any (File *in)
 									deleteAndZero (outFile);
 								if (inStream)
 									deleteAndZero (inStream);
-
+								if (zHandle)
+									CloseZip (zHandle);
 								return (false);
 							}
 						}
 
 						Logger::writeToLog (T("convert: ") + fName);
 						ret = convertAudioFile (inStream, outFile, FORMAT_WAV);
+
+						zipOutput (in, outFile);
 
 						if (outFile)
 							deleteAndZero (outFile);
@@ -242,6 +249,8 @@ bool ThorWorkerThread::zip2any (File *in)
 						Logger::writeToLog (T("convert: ") + fName);
 						ret = convertAudioFile (inStream, outFile, FORMAT_OGG);
 
+						zipOutput (in, outFile);
+
 						if (outFile)
 							deleteAndZero (outFile);
 						if (inStream)
@@ -269,7 +278,8 @@ bool ThorWorkerThread::zip2any (File *in)
 									deleteAndZero (outFile);
 								if (inStream)
 									deleteAndZero (inStream);
-
+								if (zHandle)
+									CloseZip (zHandle);
 								return (false);
 							}
 						}
@@ -283,28 +293,30 @@ bool ThorWorkerThread::zip2any (File *in)
 
 						if (outStream)
 							deleteAndZero (outStream);
+
+						zipOutput (in, outFile);
+
 						if (outFile)
 							deleteAndZero (outFile);
 						if (inStream)
 							deleteAndZero (inStream);
 					}
-					if (inStream)
-						deleteAndZero (inStream);
-					if (outFile)
-						deleteAndZero (outFile);
-
 					Logger::writeToLog (T("end one loop run"));
 				}
 			}
 		}
 
 		deleteAndZero (zIn);
+		if (zHandle)
+			CloseZip (zHandle);
 		processingArchive = String::empty;
 		processingFileName = String::empty;
 		return (true);
 	}
 	else
 	{
+		if (zHandle)
+			CloseZip (zHandle);
 		return (false);
 	}
 }
@@ -814,4 +826,25 @@ int64 ThorWorkerThread::getSamplesRead()
 int64 ThorWorkerThread::getSamplesToRead()
 {
 	return (samplesToRead);
+}
+
+void ThorWorkerThread::zipOutput (File *inZip, File *f)
+{
+	if (config->getDefaultOutputAction() == 0 || config->getDefaultOutputAction() == 2)
+	{
+		if (!zHandle)
+		{
+			zHandle = CreateZip (inZip->withFileExtension (T(".thor.zip")).getFullPathName(), 0);
+			if (!zHandle)
+				return;
+		}
+		String fPath = f->getFullPathName();
+		String fName = f->getFileName();
+
+		ZipAdd (zHandle, fName, fPath);
+	}
+	else
+	{
+		return;
+	}
 }

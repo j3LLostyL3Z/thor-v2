@@ -42,6 +42,7 @@ class ThorWorkerThread : public Thread  , public ChangeBroadcaster
 		String getStatusString();
 		int64 getSamplesRead();
 		int64 getSamplesToRead();
+		void zipOutput (File *inZip, File *f);
 
 	private:
 		File *inputFile;
@@ -53,6 +54,7 @@ class ThorWorkerThread : public Thread  , public ChangeBroadcaster
 		String processingArchive;
 		OwnedArray <File> files;
 		int64 samplesRead, samplesToRead;
+		HZIP zHandle;
 };
 
 #endif // !defined(AFX_THORWORKERTHREAD_H__D9DF0B9E_6B5E_41E6_9C8D_E7CDF523D487__INCLUDED_)

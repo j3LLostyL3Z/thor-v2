@@ -3,7 +3,7 @@
 
   This is an automatically generated file created by the Jucer!
 
-  Creation date:  5 May 2008 9:33:25 pm
+  Creation date:  12 May 2008 3:16:52 pm
 
   Be careful when adding custom code to these files, as only the code within
   the "//[xyz]" and "//[/xyz]" sections will be retained when the file is loaded
@@ -19,8 +19,8 @@
   ==============================================================================
 */
 
-#ifndef __JUCER_HEADER_THORCONFIGCOMPONENT_THORCONFIGCOMPONENT_6B5AAD41__
-#define __JUCER_HEADER_THORCONFIGCOMPONENT_THORCONFIGCOMPONENT_6B5AAD41__
+#ifndef __JUCER_HEADER_THORCONFIGCOMPONENT_THORCONFIGCOMPONENT_B43A9D4E__
+#define __JUCER_HEADER_THORCONFIGCOMPONENT_THORCONFIGCOMPONENT_B43A9D4E__
 
 //[Headers]     -- You can add your own extra header files here --
 #include "juce.h"
@@ -74,6 +74,8 @@ private:
     Label* label2;
     ComboBox* thorOggQuality;
     ToggleButton* thorVersionCheck;
+    Label* label3;
+    ComboBox* thorOutputAction;
     Image* internalCachedImage1;
 
     //==============================================================================
@@ -83,4 +85,4 @@ private:
 };
 
 
-#endif   // __JUCER_HEADER_THORCONFIGCOMPONENT_THORCONFIGCOMPONENT_6B5AAD41__
+#endif   // __JUCER_HEADER_THORCONFIGCOMPONENT_THORCONFIGCOMPONENT_B43A9D4E__
